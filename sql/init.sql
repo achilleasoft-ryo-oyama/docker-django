@@ -1,3 +1,3 @@
-GRANT ALL PRIVILEGES ON sample.* TO 'user'@'%';
+GRANT ALL PRIVILEGES ON app.* TO 'user'@'%';
 
 FLUSH PRIVILEGES;
