@@ -2,37 +2,38 @@ version: '3'
 
 services:
     nginx:
-       image: nginx:1.13
+       image: nginx:1.21
        ports:
           - "80:80"
        volumes:
-          - ./nginx/conf:/etc/nginx/conf.d
-          - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params
-          - ./static:/static
+         - ./docker/nginx/conf:/etc/nginx/conf.d
+         - ./docker/nginx/uwsgi_params:/etc/nginx/uwsgi_params
+         - ./static:/static
        depends_on:
           - python
 
     db:
-        image: mysql:5.7
+        image: mysql:8.0.25
         command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
         ports:
           - "3306:3306"
         environment:
           MYSQL_ROOT_PASSWORD: mysql
-          MYSQL_DATABASE: mysql
-          MYSQL_USER: mysql
+          MYSQL_DATABASE: app
+          MYSQL_USER: user
           MYSQL_PASSWORD: mysql
           TZ: 'Asia/Tokyo'
         volumes:
-          - ./mysql:/var/lib/mysql
-          - ./sql:/docker-entrypoint-initdb.d
+           - ./docker/mysql:/var/lib/mysql
+           - ./sql:/docker-entrypoint-initdb.d
 
     python:
-        build: ./python
+        build:
+           context: .
+           dockerfile: docker/python/Dockerfile
         command: uwsgi --socket :8001 --module app.wsgi --py-autoreload 1 --logto /tmp/mylog.log
         volumes: 
-           - ./src:/code
-           - ./static:/static
+           - ./src:/var/www/src
         expose:
            - "8001"
         depends_on:
